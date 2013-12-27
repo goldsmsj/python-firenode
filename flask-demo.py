@@ -11,7 +11,7 @@ from firenode import Firebase
 firenode.create(flask_port=flask_port, node_port=5000)
 
 #Create firebase refs
-FBURL = 'https://python-firenode-test.firebaseIO.com'
+FBURL = 'https://python-firenode-test.firebaseIO.com/demo'
 input_ref = Firebase(FBURL + '/input');
 output_ref = Firebase(FBURL + '/output');
 
