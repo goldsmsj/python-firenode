@@ -6,6 +6,7 @@ var Firebase = require('firebase');
 
 var flaskPort = Number(process.argv[2]);
 var nodePort = Number(process.argv[3]);
+var host = process.argv[4];
 
 var firebaseRefs = {};
 
@@ -13,7 +14,7 @@ var firebaseRefs = {};
 var createCallback = function(callback_route) {
     return function(snapshot) {
         request({
-            uri: 'http://127.0.0.1:' + flaskPort.toString() + callback_route,
+            uri: 'http://' + host + ':' + flaskPort.toString() + callback_route,
             method: "GET",
             qs: {
                 val: snapshot.val() //Other things should go here too
@@ -23,7 +24,7 @@ var createCallback = function(callback_route) {
 }
 
 http.createServer(function (req, response) {
-    params = url.parse(req.url, true).query;
+    var params = url.parse(req.url, true).query;
     console.log(params);
     
     switch (params.func) {
@@ -48,6 +49,6 @@ http.createServer(function (req, response) {
         'Content-Type': 'text/plain'
     });
     response.end('');
-}).listen(nodePort, '127.0.0.1');
+}).listen(nodePort, host);
     
-console.log('Firebase - node.js server running on port ' + nodePort.toString());
+console.log('Firebase - node.js server running at ' + host + ':' + nodePort.toString());

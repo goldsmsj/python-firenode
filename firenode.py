@@ -8,11 +8,11 @@ node_url = ''
 node_process = None
 
 
-def create(flask_port, node_port=28593):
+def create(flask_port, node_port=28593, host='127.0.0.1'):
     global node_url, node_process
     
-    node_url = 'http://127.0.0.1:' + str(node_port)
-    node_process = subprocess.Popen(['node', 'firebase-node.js', str(flask_port), str(node_port)])
+    node_url = 'http://' + host + ':' + str(node_port)
+    node_process = subprocess.Popen(['node', 'firebase-node.js', str(flask_port), str(node_port), host])
     
     #Kill the node server when the python interpreter exits
     atexit.register(destroy)
@@ -25,6 +25,8 @@ def create(flask_port, node_port=28593):
             break
         except requests.exceptions.ConnectionError:
             pass
+        
+    return node_process
         
 def destroy():
     node_process.kill()
