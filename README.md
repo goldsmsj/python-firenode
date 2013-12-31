@@ -9,8 +9,7 @@ Requires node.js
 
 Originally I used routes as callbacks instead of functions
 
-I'm going to try something different:
--------------------------------------
+#### I'm going to try something different:
 
 
 Using routes is a bad idea
@@ -33,8 +32,7 @@ Ideally I to just run a python script like this:
     ref.on('value', processing_callback)
 
 
-here's the new idea:
------------------------
+#### here's the new idea:
 
 1. Create a node.js server to listen to firebase
 2. Create a pool of python worker processes
@@ -43,7 +41,7 @@ here's the new idea:
 5. When a callback is fired the node server sends the pickled function back
 6. Then its dispatched to a worker process via a python queue
 
-## alternatively:
+#### alternatively:
 the python worker manager could cache pickled functions.
 and then uid for each function could be passed back and forth between node <-> Python
 
