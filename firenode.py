@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 """
     python-firenode library
     Created by Steve Goldsmith
