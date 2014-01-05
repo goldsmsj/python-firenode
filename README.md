@@ -1,64 +1,68 @@
 python-firenode
 ===============
 
-Firebase client for python frameworks
+Firebase client for python that leverages official node.js firebase library
 
-Just of a proof of concept for now.
+##### Usage:
 
-Requires node.js
+See demo.py for a simple example of the most common use case.
 
-Originally I used routes as callbacks instead of functions
+Or to start the daemon manually:
+    firenode.py start
 
-#### I'm going to try something different:
+To stop a firenode daemon:
+    firenode.py stop <port>
+
+##### Dependencies:
+
+Requires node.js and flask.
+
+##### Notes:
+
+Callbacks should not modify any external context (or even access it at this point) because
+they are going to be called from a worker in a seperate process. 
+
+##### Motivation:
+
+Firebase is awesome because it allows clients to access and modify data in 
+the database directly without a server shoved in the middle just to move data
+around.  But many applications still need a server to do some some processing
+of data.
+
+A great way to handle this is to let the server act like just another
+client.  It can watch a firebase reference where a client will place some data
+that need processing, and then put the resulting data in a firebase location
+that the client is watching.
+
+Firebase also comes with an officially supported node.js library that supports
+doing just that.  The idea of this project is to leverage that library to give
+the same functionality to any python code either running as a script or within 
+an existing web app.
+
+#### Implementation notes
+
+The firenode daemon is started by calling firenode.create() or running firenode.py
+with start as the first argument.  This will create a node.js server and a flask 
+server in seperate processes and a pool of worker processes to run callbacks.
+
+Callback functions are marshalled and sent to the node.js where they are wrapped
+in a javascript function.  When the javscript callback is fired, this sends the
+marshalled function and data snapshot(s) to the flask server.
+
+The callbacks are then placed on a Queue and pulled off by the workers where the
+marshalled function is turned back into a proper python function and the snapshot
+data is used to create a DataSnapshot object.  Finally the callback is executed.
 
 
-Using routes is a bad idea
-It requires creating routes manually that have no real meaning.
+##### TODO:
 
-Ideally I to just run a python script like this:
+- Callbacks don't have access to the defining context (add @firenode_callback decorator)
+- Flesh out the entire API
+- Tests don't work right now
+- Trying to start the daemon once its already started should work gracefully
+- Add a function to stop the daemon programatically
+- Add comprehensive tests
 
-    import firenode
-    from my_awesome_python_app_data_processing_module import data_processing_function 
-    
-    firenode.create()
-    
-    FBURL = 'URL for a firebase where the client will change data that requires processing'
-    ref = firenode.Firebase(FBURL)
-    
-    def processing_callback(data_snapshot):
-        new_val = data_processing_function(data_snapshot.val())
-        data_snapshot.ref().parent().child('output').set(new_val)
-        
-    ref.on('value', processing_callback)
-
-
-#### here's the new idea:
-
-1. Create a node.js server to listen to firebase
-2. Create a pool of python worker processes
-3. Connect the node.js server to the python worker manager through a socket
-4. Register callbacks as pickled python functions sent to node server
-5. When a callback is fired the node server sends the pickled function back
-6. Then its dispatched to a worker process via a python queue
-
-#### alternatively:
-the python worker manager could cache pickled functions.
-and then uid for each function could be passed back and forth between node <-> Python
-
-at this point i'm not going to worry about this
-I think practically it won't matter and it'll be simpler
-
-an important implication of this is that the functions won't have context
-i.e. don't use closures or globals or flask thread locals
-they should be stateless and operate only on the datasnapshot anyway
-
-The nice part of actually sending the pickled function to the node server
-is for an app at scale I can seperate the listening into a dedicated node server
-and dispatch jobs over the network using something like amazon SQS
-but the workers could also cache the functions
-
-anyway i'll worry about performace at scale later
-and focus on simplicity of implementation for now.
 
 
 
