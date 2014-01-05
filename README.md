@@ -8,9 +8,11 @@ Firebase client for python that leverages official node.js firebase library
 See demo.py for a simple example of the most common use case.
 
 Or to start the daemon manually:
+    
     firenode.py start
 
 To stop a firenode daemon:
+    
     firenode.py stop <port>
 
 ##### Dependencies:
@@ -61,6 +63,7 @@ data is used to create a DataSnapshot object.  Finally the callback is executed.
 - Tests don't work right now
 - Trying to start the daemon once its already started should work gracefully
 - Add a function to stop the daemon programatically
+- Authenticate attempt to stop daemon (generate a random key)
 - Add comprehensive tests
 
 
